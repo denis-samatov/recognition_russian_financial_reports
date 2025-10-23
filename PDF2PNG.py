@@ -3,11 +3,21 @@ import os
 
 
 def convert_pdf2png(input_file: str):
-    '''Преобразует PDF в изображение и создает файл за страницей'''
-    
+    """Converts each page of a PDF file to a PNG image.
+
+    This function takes a path to a PDF file, iterates through each page,
+    and saves each page as a separate PNG file. The output PNG files are
+    saved in a directory named "table in PNG".
+
+    Args:
+        input_file: The path to the input PDF file.
+
+    Returns:
+        A list of filenames for the generated PNG images.
+    """
     output_files = []
     # Открытие документа
-    with fitz.open(input_file) as doc:  
+    with fitz.open(input_file) as doc:
         # Полистаем страницы
         for pg in range(doc.page_count):
             # Выберем страницу
@@ -22,12 +32,12 @@ def convert_pdf2png(input_file: str):
             # Pre-rotate - это вращеие при необходимости.
             rotate = int(0)
             mat = fitz.Matrix(zoom_x, zoom_y).prerotate(rotate)
-            pix = page.get_pixmap(matrix = mat, alpha = False)
+            pix = page.get_pixmap(matrix=mat, alpha=False)
 
             if not os.path.isdir("table in PNG"):
                 os.mkdir("table in PNG")
 
-            output_file = f"{os.path.splitext(os.path.basename(input_file))[0]}_page_{pg+1}.png"
+            output_file = f"{os.path.splitext(os.path.basename(input_file))[0]}_page_{pg + 1}.png"
             pix.save(output_file)
             os.replace(output_file, f"{os.getcwd()}\\table in PNG\\{output_file}")
             output_files.append(output_file)
@@ -42,6 +52,6 @@ def convert_pdf2png(input_file: str):
     print("\n".join("{}: {}".format(key, value) for key, value in report.items()))
     print("##################################################################")
 
-    os.chdir("table in PNG") 
+    os.chdir("table in PNG")
 
     return output_files
