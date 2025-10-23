@@ -1,4 +1,11 @@
-"""Можно увеличить количество идераций для эрозии и расширения до 5"""
+"""
+This module provides functions for recognizing and extracting tabular data from
+images.
+
+It uses computer vision techniques to identify the cell coordinates of a table
+in an image, extracts the text from each cell using optical character
+recognition (OCR), and returns the data in a structured format.
+"""
 
 import matplotlib.pyplot as plt
 import cv2 as cv
@@ -7,10 +14,29 @@ import pytesseract
 import re
 
 
-def parse_img_to_csv_data(src):   
+def parse_img_to_csv_data(src):
+    """Extracts tabular data from an image.
 
+    This function processes an image to identify a table structure, extracts
+    the text from each cell using OCR, and returns the data as a list of lists.
+
+    The process involves the following steps:
+    1.  Convert the image to grayscale and then to a binary format.
+    2.  Detect horizontal and vertical lines to identify the table structure.
+    3.  Find the intersection points of the lines to determine the cell
+        coordinates.
+    4.  Extract the content of each cell and convert it to text using OCR.
+    5.  Clean the extracted text by removing special characters.
+
+    Args:
+        src: The file path of the input image.
+
+    Returns:
+        A list of lists representing the tabular data, where each inner list
+        corresponds to a row in the table.
+    """
     raw = cv.imread(src, 1)
-    
+
     # Изображение в оттенках серого
     gray = cv.cvtColor(raw, cv.COLOR_BGR2GRAY)
 
@@ -19,7 +45,7 @@ def parse_img_to_csv_data(src):
     # plt.imshow(binary,'gray')
     # plt.show()
     rows, cols = binary.shape
-    
+
     # Определение горизонтальных линий
     scale = 40 # можно поставить значение от 20-60
     mask = cv.getStructuringElement(cv.MORPH_RECT, (cols // scale, 1))
@@ -31,7 +57,7 @@ def parse_img_to_csv_data(src):
     # Определение вертикальных линий
     scale = 20 # можно поставить значение от 10-30
     mask = cv.getStructuringElement(cv.MORPH_RECT, (1, rows // scale))
-    eroded = cv.erode(binary, mask, iterations=1) 
+    eroded = cv.erode(binary, mask, iterations=1)
     dilated_row = cv.dilate(eroded, mask, iterations=1)
     # plt.imshow(dilated_row,'gray')
     # plt.show()
@@ -84,10 +110,10 @@ def parse_img_to_csv_data(src):
             y_point_arr.append(sort_y_point[i])
         i = i + 1
     y_point_arr.append(sort_y_point[i]) # Чтобы добавить последнюю точку
-    
+
     # print("Список координат x", x_point_arr)
     # print("Список координат y", y_point_arr)
-    
+
     # Циклическая таблица разделения координат y и координат x
     data = [[] for i in range(len(y_point_arr))]
     for i in range(len(y_point_arr) - 1):
@@ -111,4 +137,3 @@ def parse_img_to_csv_data(src):
         i = i + 1
 
     return data
-
