@@ -1,0 +1,32 @@
+[project]
+name = "recognition-russian-financial-reports"
+version = "0.1.0"
+description = "Tesseract-based OCR extraction of tabular data from Russian financial report PDFs"
+requires-python = ">=3.9"
+dependencies = [
+    "pytesseract",
+    "opencv-python",
+    "numpy",
+    "PyMuPDF",
+]
+
+[project.scripts]
+pdf2csv = "main:main"
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["main", "PDF2PNG", "recognition", "writeToCSV"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]

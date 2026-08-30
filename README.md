@@ -1,6 +1,8 @@
-# PDF to CSV Converter
+# Recognition of Russian Financial Reports (Tesseract OCR)
 
-This Python script is designed to convert PDF and PNG files containing tables into CSV format. The script uses computer vision and optical character recognition (OCR) to extract tabular data from images and saves it in a structured CSV file.
+Tesseract-based OCR extraction of tabular data from Russian-language financial
+report PDFs and PNGs, converted to CSV. The script uses computer vision to
+locate the table's cell boundaries, then reads each cell with Tesseract OCR.
 
 ## Table of Contents
 
@@ -18,31 +20,33 @@ Follow these instructions to set up and run the script on your local machine.
 
 ### Prerequisites
 
-- Python 3.x
-- Tesseract OCR Engine
+- Python 3.9+
+- Tesseract OCR Engine, with the Russian (`rus`) language pack installed
 
-You can download and install Tesseract from the [official repository](https://github.com/tesseract-ocr/tesseract).
+Install Tesseract via your platform's package manager (`brew install tesseract tesseract-lang` on macOS, `apt install tesseract-ocr tesseract-ocr-rus` on Debian/Ubuntu) or from the [official repository](https://github.com/tesseract-ocr/tesseract). If `tesseract` isn't on your `PATH` after installing (this is common on Windows), set the `TESSERACT_CMD` environment variable to its full path, e.g.:
+
+```sh
+# Windows PowerShell
+$env:TESSERACT_CMD = "C:\Program Files\Tesseract-OCR\tesseract.exe"
+```
 
 ### Installation
 
-1.  Clone the repository:
-    ```sh
-    git clone https://github.com/denis-samatov/Recognition_Russian-language_text_financial_reports.git
-    ```
-2.  Install the required Python libraries:
-    ```sh
-    pip install -r requirements.txt
-    ```
-    *(Note: You will need to create a `requirements.txt` file for this to work. See the [Dependencies](#dependencies) section for a list of required libraries.)*
+```sh
+git clone https://github.com/denis-samatov/recognition_russian_financial_reports.git
+cd recognition_russian_financial_reports
+pip install -e .
+```
 
 ### Usage
 
-1.  Run the `main.py` script from the command line:
-    ```sh
-    python main.py
-    ```
-2.  When prompted, enter the full path to the PDF or PNG file you want to process.
-3.  The script will generate a CSV file with the extracted data in the same directory.
+Run the `pdf2csv` command with the path to a PDF or PNG file:
+
+```sh
+pdf2csv path/to/report.pdf
+```
+
+The script will generate a CSV file with the extracted data next to the input file (PDFs also produce an intermediate `table in PNG/` directory of per-page images).
 
 ## How It Works
 
@@ -57,7 +61,7 @@ The script processes the input file in the following steps:
     - The script identifies the horizontal and vertical lines of the table to determine the cell coordinates.
 
     <div align="center">
-        <img src="https://github.com/denis-samatov/Recognition_Russian-language_text_financial_reports/blob/main/image_1.png" alt="Table Image">
+        <img src="https://github.com/denis-samatov/recognition_russian_financial_reports/blob/main/image_1.png" alt="Table Image">
     </div>
 
 3.  **Data Extraction:**
@@ -65,29 +69,24 @@ The script processes the input file in the following steps:
     - The text from each cell is recognized using the Tesseract OCR engine.
 
     <div align="center">
-        <img src="https://github.com/denis-samatov/Recognition_Russian-language_text_financial_reports/blob/main/image_2.png" alt="Horizontal Table Lines">
-        <img src="https://github.com/denis-samatov/Recognition_Russian-language_text_financial_reports/blob/main/image_3.png" alt="Vertical Table Lines">
+        <img src="https://github.com/denis-samatov/recognition_russian_financial_reports/blob/main/image_2.png" alt="Horizontal Table Lines">
+        <img src="https://github.com/denis-samatov/recognition_russian_financial_reports/blob/main/image_3.png" alt="Vertical Table Lines">
     </div>
 
 4.  **CSV Generation:**
-    - The extracted data is written to a CSV file.
+    - The extracted data is written to a CSV file (encoded `cp1251`, so it opens correctly in Russian-locale Excel).
 
 ## Dependencies
 
-This script relies on the following Python libraries:
+This script relies on the following Python libraries, declared in `pyproject.toml`:
 
 -   **PyMuPDF (`fitz`)**: For converting PDF files to PNG images.
 -   **OpenCV-Python (`cv2`)**: For image processing and table detection.
 -   **NumPy**: For numerical operations and handling image data.
 -   **Pytesseract**: For optical character recognition (OCR).
--   **Matplotlib**: For data visualization.
 
-You can install these libraries using pip:
-
-```sh
-pip install PyMuPDF opencv-python numpy pytesseract matplotlib
-```
+`pip install -e .` installs all of them.
 
 ## Disclaimer
 
-This script is provided "as is." The results may vary depending on the nature and complexity of the tables in the input files. It is recommended to carefully review the generated CSV files for accuracy before using them.
+This script is provided "as is." The results may vary depending on the nature and complexity of the tables in the input files. It is recommended to carefully review the generated CSV files for accuracy before using them. No neural network is trained or used anywhere in this pipeline — table structure is found with classical computer-vision line detection, and text is read with Tesseract's OCR engine.
